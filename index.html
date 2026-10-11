@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meghvāhana Sānkr̥tyāyan</title>
+    <meta name="description" content="Meghvāhana Sānkr̥tyāyan's portfolio">
+    <style>
+      :root {
+        color-scheme: dark;
+        --night: #080e24;
+        --indigo: #121d42;
+        --text: #f1f0e9;
+        --muted: #aeb7c8;
+        --line: rgba(216, 194, 145, .26);
+        --accent: #d8c291;
+        --sky-base: #080e24;
+        --sky-core: rgba(57, 71, 148, .54);
+        --sky-secondary: rgba(20, 91, 136, .2);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--night);
+        color: var(--text);
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      .journey { height: 680svh; }
+
+      .scene {
+        position: sticky;
+        top: 0;
+        isolation: isolate;
+        height: 100svh;
+        overflow: hidden;
+        background:
+          radial-gradient(ellipse at 48% 46%, var(--sky-core), transparent 33%),
+          radial-gradient(ellipse at 64% 58%, var(--sky-secondary), transparent 35%),
+          radial-gradient(circle at 17% 83%, rgba(22, 36, 79, .65), transparent 32%),
+          var(--sky-base);
+        transition:background-color 1.2s ease;
+      }
+
+      .phase-atmosphere { position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+      .phase-layer { position:absolute; inset:-8%; opacity:0; transition:opacity .8s ease; }
+      .phase-name { background:radial-gradient(circle at 50% 50%,rgba(238,244,255,.18),transparent 20%),conic-gradient(from 20deg at 50% 50%,transparent,rgba(218,227,255,.1),transparent 14%,transparent 46%,rgba(218,227,255,.08),transparent 61%); }
+      .phase-cv { background:repeating-linear-gradient(90deg,transparent 0 8.2vw,rgba(216,194,145,.06) 8.25vw 8.35vw),repeating-linear-gradient(0deg,transparent 0 9vh,rgba(216,194,145,.045) 9.05vh 9.15vh); transform:rotate(-4deg) scale(1.12); }
+      .phase-projects { background:radial-gradient(circle at 22% 35%,rgba(235,223,173,.25) 0 1px,transparent 2px),radial-gradient(circle at 72% 23%,rgba(216,229,255,.28) 0 1px,transparent 2px),radial-gradient(circle at 78% 71%,rgba(235,223,173,.22) 0 1px,transparent 2px),radial-gradient(circle at 31% 77%,rgba(216,229,255,.24) 0 1px,transparent 2px); background-size:29vw 25vh,31vw 28vh,27vw 31vh,33vw 26vh; }
+      .phase-github { background:linear-gradient(rgba(155,180,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(155,180,255,.055) 1px,transparent 1px); background-size:30px 30px; mask-image:radial-gradient(circle at 50% 60%,black,transparent 67%); }
+      .phase-author { background:repeating-linear-gradient(0deg,transparent 0 5.6vh,rgba(216,194,145,.075) 5.7vh 5.78vh); transform:rotate(-2deg) scale(1.08); mask-image:linear-gradient(90deg,transparent 8%,black 28% 72%,transparent 92%); }
+      body[data-phase="name"] .phase-name,body[data-phase="cv"] .phase-cv,body[data-phase="projects"] .phase-projects,body[data-phase="github"] .phase-github,body[data-phase="author"] .phase-author { opacity:1; }
+
+      .cycle-veil {
+        position:fixed; inset:0; z-index:8; pointer-events:none; opacity:var(--cycle-veil,0);
+        background:radial-gradient(circle at 50% 49%,transparent 0 var(--portal-radius,75%),rgba(4,7,20,.94) calc(var(--portal-radius,75%) + 7%),#040714 calc(var(--portal-radius,75%) + 18%));
+      }
+      .cycle-star {
+        position:fixed; z-index:9; left:50%; top:49%; width:5px; height:5px; border-radius:50%; pointer-events:none;
+        background:#fff8dc; box-shadow:0 0 12px #fff,0 0 42px #aabfff,0 0 90px rgba(216,194,145,.9);
+        opacity:var(--cycle-star,0); transform:translate(-50%,-50%) scale(var(--cycle-star-scale,1));
+      }
+
+      .sky-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .95; }
+
+      .scene::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        opacity: .36;
+        background-image: radial-gradient(circle, var(--accent) 0 1px, transparent 1.5px);
+        background-size: 113px 113px;
+        background-position: 29px 53px;
+        transform: translateY(var(--star-drift, 0px));
+      }
+
+      .scene::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: radial-gradient(ellipse at 50% 105%, rgba(205,139,82,var(--horizon-glow,0)), transparent 65%), rgba(4, 8, 24, var(--veil, 0));
+        pointer-events: none;
+      }
+
+      .entrance {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background: var(--night);
+        pointer-events: none;
+        animation: entrance-clear 1.8s ease-in-out forwards;
+      }
+
+      .entrance-symbol {
+        width: 7rem;
+        aspect-ratio: 1;
+        color:var(--accent);
+        transform-origin:50% 50%;
+        filter:drop-shadow(0 0 7px rgba(216,194,145,.75)) drop-shadow(0 0 24px rgba(181,199,255,.34));
+        animation: entrance-zoom 1.8s cubic-bezier(.16, .7, .2, 1) forwards;
+      }
+      .entrance-symbol svg { display:block; width:100%; height:100%; overflow:visible; }
+      .entrance-symbol .swastika-form { fill:none; stroke:url(#sacred-gold); stroke-width:11; stroke-linecap:round; stroke-linejoin:round; }
+      .entrance-symbol .bindu-core { fill:url(#sacred-gold); opacity:.88; }
+      .entrance-symbol .bindu-ring { fill:none; stroke:currentColor; stroke-width:1.25; opacity:.78; }
+      .entrance-symbol .bindu-dots { fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-dasharray:.1 3.1; opacity:.68; }
+
+      @keyframes entrance-zoom {
+        0% { transform:scale(.05); opacity:0; filter:blur(8px) drop-shadow(0 0 3px rgba(216,194,145,.2)); }
+        25% { transform:scale(1.16); opacity:1; filter:blur(0) drop-shadow(0 0 15px rgba(216,194,145,.95)) drop-shadow(0 0 38px rgba(181,199,255,.5)); }
+        40% { transform:scale(.91); opacity:1; filter:blur(0) drop-shadow(0 0 7px rgba(216,194,145,.75)) drop-shadow(0 0 24px rgba(181,199,255,.34)); }
+        55% { transform:scale(1.045); opacity:1; filter:blur(0) drop-shadow(0 0 9px rgba(216,194,145,.82)) drop-shadow(0 0 27px rgba(181,199,255,.38)); }
+        69% { transform:scale(1); opacity:1; filter:blur(0) drop-shadow(0 0 9px rgba(216,194,145,.82)) drop-shadow(0 0 27px rgba(181,199,255,.38)); }
+        100% { transform:scale(19); opacity:0; filter:blur(1px) drop-shadow(0 0 8px rgba(216,194,145,.7)); }
+      }
+
+      @keyframes entrance-clear {
+        0%, 68% { opacity: 1; }
+        100% { opacity: 0; visibility: hidden; }
+      }
+
+      @keyframes arrive {
+        from { opacity: 0; filter: blur(5px); }
+        to { opacity: 1; filter: blur(0); }
+      }
+
+      @keyframes breathe {
+        0%, 100% { translate: 0 0; }
+        50% { translate: 0 -.45rem; }
+      }
+
+      .geometry {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .orbit {
+        position: absolute;
+        top: 50%;
+        left: 52%;
+        aspect-ratio: 1;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        transform: translate(-50%, -50%) rotate(var(--turn, 0deg)) scale(var(--orbit-scale, 1));
+      }
+
+      .orbit.outer { width: min(82vw, 780px); }
+      .orbit.middle { width: min(57vw, 540px); opacity: .8; }
+      .orbit.inner { width: min(31vw, 290px); opacity: .52; }
+
+      .orbit.outer { box-shadow: 0 0 56px rgba(124, 142, 238, .13), inset 0 0 52px rgba(124, 142, 238, .1); }
+      .orbit.middle { border-style: dashed; }
+
+      .axis {
+        position: absolute;
+        top: 50%;
+        left: 52%;
+        width: 1px;
+        height: 145vh;
+        background: linear-gradient(transparent, var(--line), transparent);
+        transform: translate(-50%, -50%) rotate(39deg);
+      }
+
+      .point {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 14px rgba(216, 194, 145, .55);
+      }
+
+      .point.one { top: 17%; left: 18%; }
+      .point.two { top: 28%; right: 13%; }
+      .point.three { bottom: 15%; left: 27%; }
+      .point.four { bottom: 22%; right: 19%; }
+
+      .nakshatra-field {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .nakshatra {
+        position: absolute;
+        display: inline-flex;
+        align-items: center;
+        gap: .38rem;
+        white-space: nowrap;
+        color: var(--accent);
+        font: .62rem Arial, sans-serif;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        opacity: .2;
+        transition: opacity .5s ease, transform .5s ease;
+        transform: translate(-50%, -50%);
+      }
+
+      .nakshatra::before {
+        content: "";
+        width: 2px;
+        height: 2px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .nakshatra.near { opacity: .42; }
+      .nakshatra.active { opacity: 1; font-size:clamp(.82rem,1.45vw,1.35rem); text-shadow:0 0 16px rgba(245,220,158,.7); transform: translate(-50%, -50%) scale(1.1); }
+
+      .saptarshi {
+        position: absolute;
+        top: 8%;
+        right: 7%;
+        width: clamp(9rem, 17vw, 16rem);
+        color: var(--accent);
+        opacity: .68;
+        transform: translateY(var(--saptarshi-drift, 0px));
+      }
+
+      .saptarshi svg { width: 100%; height: auto; overflow: visible; }
+      .saptarshi span { display: block; margin-top: .5rem; text-align: right; font: .62rem Arial, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+
+      .scene-label {
+        position: absolute;
+        top: 1.5rem;
+        left: clamp(1.5rem, 4vw, 4rem);
+        color: var(--accent);
+        font-size: .72rem;
+        font-family: Arial, sans-serif;
+        letter-spacing: .25em;
+        text-transform: uppercase;
+        z-index: 5;
+        text-shadow: 0 1px 8px #080e24;
+      }
+
+      .scene-counter {
+        position: absolute;
+        z-index: 5;
+        top: 1.5rem;
+        right: clamp(1.5rem, 4vw, 4rem);
+        color: var(--muted);
+        font: .7rem Arial, sans-serif;
+        letter-spacing: .19em;
+        text-transform: uppercase;
+      }
+
+      .item {
+        position: absolute;
+        z-index: 3;
+        max-width: min(28rem, 40vw);
+        opacity: var(--item-opacity, 1);
+        transform: translate3d(0, var(--item-drift, 0px), 0) scale(var(--item-scale, 1));
+        transform-origin: left center;
+        transition: opacity .25s linear;
+      }
+      .item-inner { display: block; }
+      .item h1, .item h2 { text-shadow: 0 2px 23px #080e24, 0 0 25px rgba(8,14,36,.8); }
+      .item::before {
+        content: attr(data-number);
+        display: block;
+        margin-bottom: .65rem;
+        color: var(--accent);
+        font: .75rem Arial, sans-serif;
+        letter-spacing: .2em;
+        animation: arrive .5s 2.25s both;
+      }
+
+      h1, h2 { margin: 0; font-weight: 400; line-height: 1; }
+      h1 { font-size: clamp(3.25rem, 7vw, 7rem); letter-spacing: -.055em; }
+      h2 { font-size: clamp(2rem, 4vw, 4rem); letter-spacing: -.035em; }
+
+      #name { top: 27%; left: 8%; max-width: none; white-space: nowrap; }
+      #cv { top: 21%; right: 13%; }
+      #github { bottom: 17%; left: 20%; }
+      #author { bottom: 23%; right: 9%; }
+
+      .sky-header {
+        position:absolute; z-index:6; top:0; left:0; right:0;
+        display:grid; grid-template-columns:1.3fr repeat(3,1fr); gap:1rem;
+        padding:1.3rem clamp(1.2rem,3vw,3.2rem);
+        border-bottom:1px solid rgba(216,194,145,.2);
+        background:rgba(6,11,29,.78); backdrop-filter:blur(14px);
+        font-family:Arial,sans-serif;
+      }
+      .sky-header div { min-width:0; }
+      .sky-header span { display:block; margin-bottom:.4rem; color:var(--accent); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; }
+      .sky-header strong { display:block; color:var(--text); font-size:clamp(.8rem,1.1vw,1rem); font-weight:400; letter-spacing:.025em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .sky-header .location strong { font-family:Georgia,serif; font-size:clamp(1rem,1.5vw,1.35rem); }
+
+      .item {
+        top:50%!important; left:50%!important; right:auto!important; bottom:auto!important;
+        width:min(78rem,86vw); max-width:none; text-align:center;
+        opacity:var(--motion-opacity,1);
+        transform:translate(-50%,-50%) translate3d(calc(var(--motion-x,0px) + var(--ambient-x,0px)),calc(var(--motion-y,0px) + var(--ambient-y,0px)),0) rotate(var(--motion-tilt,0deg)) scale(var(--motion-scale,1));
+        transform-origin:center; pointer-events:none;
+        filter:blur(var(--motion-blur,0px));
+        transition:none;
+      }
+      .item.active { pointer-events:auto; }
+      .item:focus-within,.item:has(a:hover) { --interaction-scale:1.035; }
+      .item::before { animation:none; margin-bottom:1.2rem; font-size:.72rem; }
+      .item-inner { display:block; position:relative; isolation:isolate; transform:scale(var(--interaction-scale,1)); transition:transform .3s ease; animation:none!important; }
+      .item-inner::before {
+        content:""; position:absolute; z-index:-1; inset:-.9rem -1.5rem;
+        border:1px solid rgba(242,226,181,.48); border-radius:.35rem;
+        background:radial-gradient(ellipse,rgba(210,220,255,.2),rgba(13,23,57,.18) 58%,transparent 78%);
+        box-shadow:0 0 45px rgba(217,230,255,.23),inset 0 0 30px rgba(247,239,215,.11);
+        opacity:var(--impact-opacity,0); transform:scale(var(--impact-scale,.15));
+        pointer-events:none;
+      }
+      .item h1,.item h2 { font-size:clamp(4rem,10vw,10rem); letter-spacing:-.06em; line-height:.9; }
+      .item h2 { font-size:clamp(5rem,11vw,11rem); }
+      .item::after {
+        content:""; position:absolute; left:24%; right:24%; bottom:-1.5rem;
+        height:1px; background:linear-gradient(90deg,transparent,rgba(255,248,225,.9),transparent);
+        box-shadow:0 0 18px rgba(255,236,187,.8);
+        opacity:var(--impact-opacity,0); transform:scaleX(var(--impact-scale,.15));
+        pointer-events:none;
+      }
+      #name { white-space:normal; }
+
+      .nakshatra-focus {
+        position:absolute; z-index:4; right:clamp(1.2rem,4vw,4rem); bottom:clamp(4.5rem,9vh,8rem);
+        width:min(24rem,31vw); padding:1.1rem 0 0;
+        border-top:1px solid rgba(216,194,145,.55);
+        text-align:right; pointer-events:none;
+      }
+      .nakshatra-focus small { display:block; color:var(--accent); font:.65rem Arial,sans-serif; letter-spacing:.21em; text-transform:uppercase; }
+      .nakshatra-focus strong { display:block; margin-top:.45rem; color:var(--text); font-size:clamp(2rem,3.5vw,3.5rem); font-weight:400; line-height:1; }
+      .nakshatra-focus em { display:block; margin-top:.45rem; color:var(--muted); font-size:.93rem; font-style:normal; }
+
+      .phase-rail {
+        position:absolute; z-index:5; top:50%; left:clamp(1.2rem,3vw,3rem); transform:translateY(-50%);
+        display:grid; gap:1rem; color:var(--muted); font:.65rem Arial,sans-serif; letter-spacing:.15em;
+      }
+      .phase-rail span { position:relative; display:flex; align-items:center; gap:.65rem; padding-bottom:.34rem; opacity:.45; transition:opacity .2s; }
+      .phase-rail span::before { content:""; width:1.3rem; height:1px; background:var(--accent); }
+      .phase-rail span::after { content:""; position:absolute; left:1.95rem; right:0; bottom:0; height:1px; background:var(--accent); transform:scaleX(var(--step-progress,0)); transform-origin:left; opacity:.8; }
+      .phase-rail span.current { opacity:1; color:var(--accent); }
+      body.timer-paused .phase-rail span.current::after { animation:timer-pause 1s ease-in-out infinite alternate; }
+      @keyframes timer-pause { to { opacity:.25; } }
+
+      .sky-source {
+        position:absolute; z-index:4; bottom:1.2rem; right:clamp(1.2rem,3vw,3rem);
+        color:var(--muted); font:.61rem Arial,sans-serif; letter-spacing:.09em;
+      }
+      .sky-source a { color:var(--accent); }
+
+      .sky-time {
+        position:absolute; z-index:6; top:1rem; left:clamp(1rem,3vw,3rem); right:1rem;
+        display:flex; flex-wrap:wrap; gap:.35rem 1.4rem; margin:0;
+        color:rgba(238,240,234,.75); font:.66rem Arial,sans-serif; letter-spacing:.13em; text-transform:uppercase;
+        text-shadow:0 2px 12px #080e24;
+      }
+      .sky-time span { color:var(--accent); }
+
+      .sound-toggle {
+        position:absolute; z-index:9; top:.72rem; right:clamp(1rem,3vw,3rem);
+        min-width:7.4rem; padding:.55rem .75rem; border:1px solid rgba(216,194,145,.42);
+        border-radius:999px; background:rgba(8,14,36,.46); color:rgba(238,240,234,.7);
+        font:.61rem Arial,sans-serif; letter-spacing:.16em; text-transform:uppercase;
+        cursor:pointer; backdrop-filter:blur(8px); transition:border-color .25s,color .25s,box-shadow .25s,background .25s;
+      }
+      .sound-toggle::before { content:""; display:inline-block; width:.4rem; height:.4rem; margin-right:.55rem; border-radius:50%; background:currentColor; box-shadow:0 0 0 transparent; }
+      .sound-toggle:hover,.sound-toggle:focus-visible { color:var(--text); border-color:rgba(242,226,181,.82); outline:none; }
+      .sound-toggle[aria-pressed="true"] { color:var(--accent); background:rgba(35,31,45,.66); box-shadow:0 0 24px rgba(216,194,145,.15); }
+      .sound-toggle[aria-pressed="true"]::before { box-shadow:0 0 9px var(--accent); animation:sound-pulse 1.8s ease-in-out infinite alternate; }
+      @keyframes sound-pulse { to { opacity:.45; transform:scale(.72); } }
+
+      .figure-stage {
+        position:absolute; inset:0; z-index:2; pointer-events:none;
+        transform:translate3d(var(--figure-shift-x,0px),var(--figure-drift,0px),0) rotate(var(--figure-tilt,0deg)) scale(var(--figure-scale,1)) scaleY(var(--impact-compress,1));
+        transform-origin:50% 72%;
+        perspective:900px;
+      }
+      .figure-halo {
+        position:absolute; left:50%; top:47%; width:min(62vw,780px); aspect-ratio:1;
+        transform:translate(-50%,-50%);
+        border-radius:50%;
+        background:radial-gradient(circle,rgba(229,236,255,.28),rgba(157,183,255,.11) 37%,transparent 72%);
+        filter:blur(24px);
+        animation:halo-breathe 9s ease-in-out infinite alternate;
+      }
+      @keyframes halo-breathe { from { opacity:.62; } to { opacity:1; } }
+      .figure {
+        position:absolute; left:50%; bottom:-2svh; height:min(88svh,980px); width:auto;
+        max-width:94vw; object-fit:contain;
+        transform:translateX(-50%);
+        filter:brightness(.94) saturate(.82) drop-shadow(0 0 16px rgba(242,244,255,.38));
+        opacity:.84;
+      }
+      .aura-presence {
+        position:absolute; left:50%; bottom:-2svh; height:min(88svh,980px); width:auto;
+        max-width:94vw; transform:translateX(-50%);
+        opacity:var(--aura-opacity,.72); filter:drop-shadow(0 0 var(--aura-shadow,26px) rgba(223,234,255,.55));
+      }
+      .thread-light { fill:none; stroke:#e1bd63; stroke-width:4; stroke-linecap:round; opacity:var(--thread-opacity,.2); filter:drop-shadow(0 0 7px rgba(246,214,118,.9)); stroke-dasharray:14 9; animation:thread-flow 7s linear infinite; }
+      @keyframes thread-flow { to { stroke-dashoffset:-92; } }
+      .ground-ring {
+        position:absolute; left:50%; bottom:4svh; width:min(45vw,550px); height:7svh;
+        transform:translateX(-50%) rotateX(70deg) scale(var(--ground-scale,1));
+        border:1px solid rgba(242,226,181,.7); border-radius:50%;
+        box-shadow:0 0 36px rgba(242,226,181,.36),inset 0 0 25px rgba(242,226,181,.21);
+        opacity:var(--ground-opacity,.7);
+      }
+
+      .item { top:77%!important; }
+      .item h1 { font-size:clamp(3rem,6.5vw,6.5rem); }
+      .item h2 { font-size:clamp(3.6rem,7vw,7.5rem); }
+      #name { top:72%!important; }
+      #name h1 { font-size:clamp(2.8rem,6vw,5.8rem); }
+      #projects,#author { top:66%!important; }
+      #projects h2,#author h2 { font-size:clamp(3rem,6vw,6rem); }
+      #author h2 a { color:var(--text); text-decoration:none; }
+      #author h2 a:hover,#author h2 a:focus-visible { color:var(--accent); outline:none; }
+      .project-list {
+        display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem;
+        width:min(42rem,84vw); max-height:25svh; margin:1.1rem auto 0; padding:0;
+        overflow:auto; list-style:none; text-align:left; scrollbar-width:thin;
+      }
+      .project-list li { min-width:0; }
+      .project-list a,.project-list .project-without-link {
+        display:block; height:100%; padding:.75rem .9rem;
+        border-left:1px solid rgba(216,194,145,.72);
+        background:linear-gradient(90deg,rgba(7,13,35,.8),rgba(7,13,35,.4));
+        color:var(--text); text-decoration:none; backdrop-filter:blur(6px);
+      }
+      .project-list a:hover,.project-list a:focus-visible { border-color:var(--text); background:rgba(22,34,77,.86); outline:none; }
+      .project-title { display:block; color:var(--text); font:clamp(1rem,1.4vw,1.25rem)/1.2 Georgia,serif; }
+      .project-description { display:block; margin-top:.3rem; color:var(--muted); font:.72rem/1.45 Arial,sans-serif; }
+      .project-empty { margin:.9rem 0 0; color:var(--muted); font:.78rem/1.4 Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+      #projects h2,#projects .project-list,#projects .project-empty { position:relative; z-index:2; }
+      .project-constellation { position:absolute; z-index:1; inset:-4rem 7% -3rem; opacity:.55; pointer-events:none; }
+      .project-constellation svg { width:100%; height:100%; overflow:visible; }
+      .project-constellation line { stroke:rgba(216,194,145,.48); stroke-width:.16; vector-effect:non-scaling-stroke; }
+      .project-constellation circle { fill:#f4e6b8; filter:drop-shadow(0 0 5px #d9c788); }
+      .article-list {
+        width:max-content; max-width:min(38rem,84vw); margin:1.2rem auto 0;
+        padding:.75rem 1.2rem .85rem 2.4rem; text-align:left; color:var(--accent);
+        border-left:1px solid rgba(216,194,145,.72);
+        background:linear-gradient(90deg,rgba(7,13,35,.76),rgba(7,13,35,.37));
+        backdrop-filter:blur(6px);
+        font:clamp(1.05rem,1.55vw,1.3rem)/1.45 Georgia,serif;
+      }
+      .article-list li + li { margin-top:.55rem; }
+      .article-list a { color:var(--text); text-decoration:none; text-shadow:0 2px 18px #080e24; }
+      .article-list a:hover,.article-list a:focus-visible { color:var(--accent); text-decoration:underline; text-underline-offset:.25em; outline:none; }
+      .nakshatra-focus { top:20%; bottom:auto; right:clamp(1.2rem,4vw,4rem); width:min(21rem,26vw); }
+      .phase-rail { top:43%; }
+      .scroll-cue { left:auto; right:clamp(1.2rem,3vw,3rem); transform:none; }
+
+      .atlas-toggle {
+        position: absolute;
+        z-index: 6;
+        left: clamp(1.2rem,4vw,4rem);
+        bottom: 1.25rem;
+        max-width: min(25rem, 46vw);
+        padding: .85rem 1rem;
+        border: 1px solid rgba(216,194,145,.4);
+        background: rgba(8,14,36,.74);
+        color: var(--text);
+        text-align: left;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+      }
+      .atlas-toggle small { display: block; margin-bottom: .3rem; color: var(--accent); font: .62rem Arial,sans-serif; letter-spacing:.18em; text-transform:uppercase; }
+      .atlas-toggle strong { font-size: 1rem; font-weight: normal; }
+      .atlas-toggle:hover,.atlas-toggle:focus-visible { border-color: var(--accent); outline: none; }
+
+      .atlas {
+        position: fixed;
+        z-index: 20;
+        inset: 0 0 0 auto;
+        width: min(29rem,100vw);
+        padding: 1.5rem clamp(1.2rem,3vw,2.2rem) 2rem;
+        overflow-y: auto;
+        border-left: 1px solid var(--line);
+        background: rgba(7,12,31,.97);
+        box-shadow: -30px 0 80px rgba(0,0,0,.5);
+        transform: translateX(105%);
+        transition: transform .4s ease;
+      }
+      .atlas.open { transform: translateX(0); }
+      .atlas:not(.open) { pointer-events:none; }
+      .atlas-top { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+      .atlas-kicker { margin:0; color:var(--accent); font:.68rem Arial,sans-serif; letter-spacing:.22em; text-transform:uppercase; }
+      .atlas-close { padding:.5rem .7rem; border:1px solid var(--line); background:transparent; color:var(--text); font:1.25rem Arial,sans-serif; cursor:pointer; }
+      .atlas h2 { margin:2.5rem 0 .5rem; font-size:clamp(2.2rem,6vw,3.8rem); }
+      .atlas-meaning { margin:0 0 1.8rem; color:var(--muted); font-size:1.1rem; line-height:1.45; }
+      .atlas-facts { margin:0; display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+      .atlas-facts div { padding-top:.8rem; border-top:1px solid var(--line); }
+      .atlas-facts dt { color:var(--muted); font:.65rem Arial,sans-serif; letter-spacing:.15em; text-transform:uppercase; }
+      .atlas-facts dd { margin:.45rem 0 0; color:var(--text); font-size:1rem; line-height:1.4; overflow-wrap:anywhere; }
+      .atlas-controls { display:flex; justify-content:space-between; gap:.7rem; margin:2rem 0; }
+      .atlas-controls button { flex:1; padding:.75rem; border:1px solid var(--line); background:rgba(216,194,145,.06); color:var(--text); cursor:pointer; font: .7rem Arial,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+      .atlas-controls button:hover,.atlas-controls button:focus-visible { border-color:var(--accent); outline:none; }
+      .atlas-index { display:grid; grid-template-columns:1fr 1fr; gap:.45rem; margin:0 0 2rem; }
+      .atlas-index button { padding:.5rem .45rem; border:1px solid transparent; background:transparent; color:var(--muted); text-align:left; cursor:pointer; font:.72rem Arial,sans-serif; }
+      .atlas-index button:hover,.atlas-index button:focus-visible,.atlas-index button.active { border-color:var(--line); color:var(--accent); outline:none; }
+      .atlas-divider { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+      .atlas h3 { margin:0 0 .5rem; font-size:1.35rem; font-weight:normal; }
+      .atlas-sages { margin:1rem 0; padding-left:1.4rem; columns:2; color:var(--muted); line-height:1.9; font-size:.9rem; }
+      .atlas-note,.atlas-credit { color:var(--muted); font:.75rem/1.6 Arial,sans-serif; }
+      .atlas-credit a { color:var(--accent); }
+      .atlas-credit { margin-top:2rem; }
+
+      .scroll-cue {
+        position: absolute;
+        bottom: 1.4rem;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--muted);
+        font: .68rem Arial, sans-serif;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        opacity: calc(1 - var(--progress, 0) * 8);
+        animation: arrive .8s 3s both;
+      }
+
+      .progress {
+        position: fixed;
+        z-index: 8;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(var(--progress, 0));
+        transform-origin: left center;
+      }
+
+      @media (max-width: 700px) {
+        .sound-toggle { top:3.15rem; right:1rem; min-width:6.8rem; padding:.48rem .64rem; font-size:.55rem; }
+        .journey { height: 720svh; }
+        .scene { min-height: 0; }
+        .orbit { left: 50%; }
+        .orbit.outer { width: 112vw; }
+        .orbit.middle { width: 79vw; }
+        .orbit.inner { width: 44vw; }
+        .axis { left: 50%; }
+        .item { max-width: 83vw; }
+        h1 { font-size: clamp(2.15rem, 8.6vw, 4.2rem); }
+        h2 { font-size: clamp(1.9rem, 7vw, 3rem); }
+        #name { top: 19%; left: 7%; }
+        #cv { top: 38%; right: 12%; }
+        #github { bottom: 24%; left: 10%; }
+        #author { bottom: 9%; right: 7%; }
+        .saptarshi { top: 8%; right: 8%; width: 8rem; }
+        .nakshatra { font-size: .56rem; opacity:0; }
+        .nakshatra.near { opacity:.23; }
+        .nakshatra.active { opacity:.88; font-size:.9rem; }
+        .atlas-toggle { bottom:1rem; max-width:65vw; padding:.65rem .75rem; }
+        .atlas-toggle strong { font-size:.82rem; }
+        .scroll-cue { right:1rem; left:auto; bottom:2rem; transform:none; font-size:.6rem; }
+        .scene-counter { display:none; }
+        .sky-header { grid-template-columns:1fr 1fr; gap:.75rem; padding:.8rem 1rem; }
+        .sky-header span { font-size:.53rem; margin-bottom:.2rem; }
+        .sky-header strong { font-size:.78rem; }
+        .sky-header .location strong { font-size:1rem; }
+        .item { width:91vw; }
+        .item h1 { font-size:clamp(2.7rem,12vw,5rem); }
+        .item h2 { font-size:clamp(3.7rem,15vw,7rem); }
+        .phase-rail { top:auto; bottom:7.3rem; left:1rem; transform:none; gap:.55rem; }
+        .phase-rail span { font-size:.54rem; }
+        .phase-rail span::before { width:.8rem; }
+        .nakshatra-focus { width:55vw; right:1rem; bottom:6.5rem; }
+        .nakshatra-focus strong { font-size:1.55rem; }
+        .nakshatra-focus em { font-size:.7rem; }
+        .sky-source { display:none; }
+        .sky-time { top:.8rem; left:1rem; right:1rem; gap:.25rem .65rem; font-size:.51rem; line-height:1.4; }
+        .figure { height:78svh; max-width:110vw; bottom:0; }
+        .figure-halo { width:100vw; top:47%; }
+        .ground-ring { width:70vw; bottom:3svh; }
+        .item { top:78%!important; width:94vw; }
+        .item h1 { font-size:clamp(2.4rem,9vw,4.5rem); }
+        #name { top:72%!important; }
+        #name h1 { font-size:clamp(2.2rem,8.6vw,4.2rem); }
+        .item h2 { font-size:clamp(3rem,11vw,5rem); }
+        #projects,#author { top:63%!important; width:92vw; }
+        #projects h2,#author h2 { font-size:clamp(2.7rem,10vw,4.5rem); }
+        .project-list { grid-template-columns:1fr; max-height:24svh; max-width:84vw; }
+        .article-list { max-width:83vw; margin-top:.9rem; font-size:clamp(.92rem,3.8vw,1.05rem); }
+        .nakshatra-focus { top:18%; right:1rem; bottom:auto; width:47vw; }
+        .nakshatra-focus strong { font-size:1.45rem; }
+        .phase-rail { top:46%; bottom:auto; }
+        .scroll-cue { bottom:1rem; right:1rem; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .entrance { display: none; }
+        .figure-halo { animation:none; }
+        .thread-light { animation:none; }
+        .sound-toggle[aria-pressed="true"]::before { animation:none; }
+        .cycle-veil,.cycle-star { display:none; }
+        .item, .item::before, .item-inner, .item h1, .item h2, .scroll-cue { animation: none; }
+        .item-inner::before { display:none; }
+        .item, .orbit, .saptarshi, .scene::after { transform: none; transition: none; }
+        .orbit { transform: translate(-50%, -50%); }
+        .nakshatra { transition: none; }
+        .atlas { transition:none; }
+        .journey { height:auto; }
+        .scene { position:relative; height:auto; min-height:100svh; padding:8rem 1rem 12rem; }
+        .item { position:relative; top:auto!important; left:auto!important; width:100%; margin:2rem auto; opacity:1!important; transform:none!important; pointer-events:auto; }
+        #name { top:auto!important; }
+        #projects,#author { top:auto!important; }
+        .item h1,.item h2 { font-size:clamp(2.4rem,10vw,5rem); }
+        .phase-rail,.nakshatra-focus { display:none; }
+        .figure-stage { position:relative; height:65svh; transform:none; }
+        .figure { height:65svh; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="entrance" aria-hidden="true">
+      <div class="entrance-symbol">
+        <svg viewBox="0 0 100 100" role="presentation" aria-hidden="true">
+          <defs><linearGradient id="sacred-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b2"/><stop offset=".48" stop-color="#d7b967"/><stop offset="1" stop-color="#9c7333"/></linearGradient></defs>
+          <g class="swastika-form">
+            <path d="M50 50V24Q50 17 57 17H82"/>
+            <path d="M50 50H76Q83 50 83 57V82"/>
+            <path d="M50 50V76Q50 83 43 83H18"/>
+            <path d="M50 50H24Q17 50 17 43V18"/>
+          </g>
+          <g transform="translate(33 33)"><circle class="bindu-dots" r="9"/><circle class="bindu-ring" r="6.8"/><circle class="bindu-core" r="4.8"/></g>
+          <g transform="translate(67 33)"><circle class="bindu-dots" r="9"/><circle class="bindu-ring" r="6.8"/><circle class="bindu-core" r="4.8"/></g>
+          <g transform="translate(67 67)"><circle class="bindu-dots" r="9"/><circle class="bindu-ring" r="6.8"/><circle class="bindu-core" r="4.8"/></g>
+          <g transform="translate(33 67)"><circle class="bindu-dots" r="9"/><circle class="bindu-ring" r="6.8"/><circle class="bindu-core" r="4.8"/></g>
+        </svg>
+      </div>
+    </div>
+    <div class="cycle-veil" aria-hidden="true"></div><div class="cycle-star" aria-hidden="true"></div>
+    <div class="progress" aria-hidden="true"></div>
+    <div class="journey">
+    <main class="scene">
+      <div class="phase-atmosphere" aria-hidden="true"><i class="phase-layer phase-name"></i><i class="phase-layer phase-cv"></i><i class="phase-layer phase-projects"></i><i class="phase-layer phase-github"></i><i class="phase-layer phase-author"></i></div>
+      <p class="sky-time">Ghorawal, Sonbhadra <span id="ist-clock">--:--:-- IST</span> <span id="sidereal-clock">LST --:--:--</span> <span id="solar-altitude">--°</span></p>
+      <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false" aria-label="Enable section thunder">Thunder · Off</button>
+      <div class="geometry" aria-hidden="true">
+        <canvas class="sky-canvas" id="sky-canvas"></canvas>
+        <div class="axis"></div>
+        <div class="orbit outer"></div>
+        <div class="orbit middle"></div>
+        <div class="orbit inner"></div>
+        <i class="point one"></i>
+        <i class="point two"></i>
+        <i class="point three"></i>
+        <i class="point four"></i>
+        <div class="nakshatra-field" id="nakshatra-field"></div>
+        <div class="saptarshi">
+          <svg viewBox="0 0 220 110" role="presentation" aria-hidden="true">
+            <polyline points="12,68 44,53 77,60 108,42 140,31 173,44 205,22" fill="none" stroke="currentColor" stroke-width=".7" opacity=".65"/>
+            <g fill="currentColor"><circle cx="12" cy="68" r="2.5"/><circle cx="44" cy="53" r="2.5"/><circle cx="77" cy="60" r="2.5"/><circle cx="108" cy="42" r="2.5"/><circle cx="140" cy="31" r="2.5"/><circle cx="173" cy="44" r="2.5"/><circle cx="205" cy="22" r="2.5"/></g>
+          </svg>
+          <span>Saptarṣi</span>
+        </div>
+      </div>
+      <div class="figure-stage">
+        <div class="figure-halo" aria-hidden="true"></div>
+        <svg class="aura-presence" viewBox="0 0 1024 1536" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="soul-light" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f8fbff" stop-opacity=".36"/>
+              <stop offset=".48" stop-color="#e6eeff" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#d8e7ff" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="soul-soft"><feGaussianBlur stdDeviation="21"/></filter>
+          </defs>
+          <ellipse cx="512" cy="228" rx="66" ry="88" fill="url(#soul-light)" filter="url(#soul-soft)"/>
+          <path d="M512 332 C471 332 454 347 428 367 C410 383 405 410 414 448 C424 503 449 561 458 646 C469 756 480 857 490 1000 C499 1138 506 1280 512 1390 C518 1280 525 1138 534 1000 C544 857 555 756 566 646 C575 561 600 503 610 448 C619 410 614 383 596 367 C570 347 553 332 512 332 Z" fill="url(#soul-light)" filter="url(#soul-soft)"/>
+          <path d="M455 375 C477 349 490 347 512 347 C534 347 547 349 569 375" fill="none" stroke="#f8fbff" stroke-opacity=".28" stroke-width="14" stroke-linecap="round" filter="url(#soul-soft)"/>
+          <path class="thread-light" d="M566 360 C614 478 603 607 546 728 C506 813 475 910 495 1040"/>
+        </svg>
+        <img class="figure" src="meghavahana-aura.png" alt="Narrow luminous aura for Meghvāhana Sānkr̥tyāyan, with three bhasma lines and a fine gold yajñopavīta">
+        <div class="ground-ring" aria-hidden="true"></div>
+      </div>
+      <section class="item" id="name" data-number="01 / Name" aria-labelledby="name-heading">
+        <div class="item-inner"><h1 id="name-heading">Meghvāhana Sānkr̥tyāyan</h1></div>
+      </section>
+
+      <section class="item" id="cv" data-number="02 / CV" aria-labelledby="cv-heading">
+        <div class="item-inner"><h2 id="cv-heading">CV</h2></div>
+        <!-- Add the CV file or URL when provided. -->
+      </section>
+
+      <section class="item" id="projects" data-number="03 / Projects" aria-labelledby="projects-heading">
+        <div class="item-inner">
+          <h2 id="projects-heading">Projects</h2>
+          <div class="project-constellation" id="project-constellation" aria-hidden="true"></div>
+          <ul class="project-list" id="project-list" aria-label="Selected projects"></ul>
+          <p class="project-empty" id="project-empty">Selected work will appear here.</p>
+        </div>
+      </section>
+
+      <section class="item" id="github" data-number="04 / GitHub" aria-labelledby="github-heading">
+        <div class="item-inner"><h2 id="github-heading">GitHub</h2></div>
+        <!-- Add the GitHub URL when provided. -->
+      </section>
+
+      <section class="item" id="author" data-number="05 / Author" aria-labelledby="author-heading">
+        <div class="item-inner">
+          <h2 id="author-heading"><a href="https://tulasi-vanam.com/author/meghvahana-pandey/" target="_blank" rel="noopener noreferrer">Author page</a></h2>
+          <ul class="article-list" id="author-articles" aria-label="Selected articles">
+            <li><a href="https://tulasi-vanam.com/dhirata-antifragility-amor-fati/" target="_blank" rel="noopener noreferrer">Dhīratā, Antifragility &amp; Amor-Fati</a></li>
+            <li><a href="https://tulasi-vanam.com/on-buddhist-philosophy/" target="_blank" rel="noopener noreferrer">On Buddhist Philosophy</a></li>
+          </ul>
+        </div>
+      </section>
+      <div class="phase-rail" aria-hidden="true"><span class="current">01 NAME</span><span>02 CV</span><span>03 PROJECTS</span><span>04 GITHUB</span><span>05 AUTHOR</span></div>
+      <div class="nakshatra-focus" aria-live="off"><small id="focus-sequence">Nakshatra 01 / 28</small><strong id="focus-name">Aśvinī</strong><em id="focus-meaning"></em></div>
+      <span class="scroll-cue" aria-hidden="true">Hover to pause · Scroll to revisit ↓</span>
+      <span class="sky-source"><a href="https://github.com/Stellarium/stellarium-skycultures/tree/master/indian" target="_blank" rel="noopener noreferrer">Stellarium sky-culture data · CC BY-SA</a></span>
+    </main>
+    </div>
+    <script src="content-data.js"></script>
+    <script src="sky-data.js"></script>
+    <script src="projects-data.js"></script>
+    <script>
+      (() => {
+        const culture = window.skyCultureData;
+        if (!culture || !Array.isArray(culture.nakshatras)) return;
+        const nakshatras = culture.nakshatras;
+        const field = document.getElementById('nakshatra-field');
+        const labelGeometry = [];
+        const labels = nakshatras.map((entry, index) => {
+          const label = document.createElement('span');
+          const angle = ((index * 137.5) - 84) * Math.PI / 180;
+          const ring = index % 3;
+          const xRadius = [45, 36, 27][ring];
+          const yRadius = [42, 33, 25][ring];
+          labelGeometry.push({ angle, xRadius, yRadius });
+          label.className = 'nakshatra';
+          label.textContent = entry.name;
+          label.style.left = `${50 + Math.cos(angle) * xRadius}%`;
+          label.style.top = `${50 + Math.sin(angle) * yRadius}%`;
+          field.appendChild(label);
+          return label;
+        });
+
+        const root = document.documentElement;
+        const items = [...document.querySelectorAll('.item')];
+        const orbits = [...document.querySelectorAll('.orbit')];
+        const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const canvas = document.getElementById('sky-canvas');
+        const ctx = canvas.getContext('2d');
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        scrollTo(0, 0);
+        let chosen = 0;
+        let scrollProgress = 0;
+        let manualMode = false;
+        let manualIntent = false;
+        let frameRequested = false;
+        let stars = [];
+        let width = 0;
+        let height = 0;
+        let siderealHours = 0;
+        let solarAltitude = -90;
+        let pointerTargetX = 0;
+        let pointerTargetY = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+        let previousProgress = null;
+        let impactEvents = [];
+        let autoElapsed = 0;
+        let lastFrame = performance.now();
+        let interactionPaused = false;
+        let currentPhaseIndex = -1;
+        let autoTimerIndex = 0;
+        let autoTimerProgress = 0;
+        const started = performance.now();
+        const phases = items.map((_, index) => .07 + index * (.86 / Math.max(1, items.length - 1)));
+        const autoDelay = 1.65;
+        const autoInterval = 3;
+        const autoTransition = .62;
+        const autoSettleOffset = .05;
+        const phaseRail = [...document.querySelectorAll('.phase-rail span')];
+        const soundToggle = document.getElementById('sound-toggle');
+        let audioContext = null;
+        let masterGain = null;
+        let thunderNoise = null;
+        let soundEnabled = false;
+
+        function makeThunderBuffer(seconds) {
+          const frames = Math.floor(audioContext.sampleRate * seconds);
+          const buffer = audioContext.createBuffer(1, frames, audioContext.sampleRate);
+          const data = buffer.getChannelData(0);
+          let brown = 0;
+          for (let i = 0; i < frames; i++) {
+            const time = i / audioContext.sampleRate;
+            const white = Math.random() * 2 - 1;
+            brown = (brown + white * .16) / 1.12;
+            const crack = Math.exp(-time * 25) * white * 1.7;
+            const roll = Math.exp(-time * .72) * (.48 + .22 * Math.sin(time * 12.7) + .16 * Math.sin(time * 5.1));
+            data[i] = Math.max(-1, Math.min(1, crack + brown * roll * 2.8));
+          }
+          return buffer;
+        }
+
+        function initialiseSound() {
+          if (audioContext) return;
+          const AudioEngine = window.AudioContext || window.webkitAudioContext;
+          if (!AudioEngine) {
+            soundToggle.hidden = true;
+            return;
+          }
+          audioContext = new AudioEngine();
+          masterGain = audioContext.createGain();
+          masterGain.gain.value = .0001;
+          masterGain.connect(audioContext.destination);
+          thunderNoise = makeThunderBuffer(5.2);
+        }
+
+        function playThunder(index = 0, intensity = 1) {
+          if (!soundEnabled || !audioContext || audioContext.state !== 'running') return;
+          const now = audioContext.currentTime;
+          const source = audioContext.createBufferSource();
+          const filter = audioContext.createBiquadFilter();
+          const gain = audioContext.createGain();
+          const panner = audioContext.createStereoPanner ? audioContext.createStereoPanner() : null;
+          source.buffer = thunderNoise;
+          source.playbackRate.value = .82 + index * .035 + Math.random() * .08;
+          filter.type = 'lowpass';
+          filter.frequency.value = 360 + index * 54;
+          filter.Q.value = .72;
+          gain.gain.setValueAtTime(.0001, now);
+          gain.gain.exponentialRampToValueAtTime(.2 * intensity, now + .018);
+          gain.gain.exponentialRampToValueAtTime(.0001, now + 4.7);
+          source.connect(filter).connect(gain);
+          if (panner) { panner.pan.value = Math.random() * 1.3 - .65; gain.connect(panner).connect(masterGain); }
+          else gain.connect(masterGain);
+          source.start(now, Math.random() * .12); source.stop(now + 5);
+
+          const rumble = audioContext.createOscillator();
+          const rumbleGain = audioContext.createGain();
+          rumble.type = 'sine';
+          rumble.frequency.setValueAtTime(46 - index * 2, now);
+          rumble.frequency.exponentialRampToValueAtTime(27, now + 3.4);
+          rumbleGain.gain.setValueAtTime(.0001, now);
+          rumbleGain.gain.exponentialRampToValueAtTime(.07 * intensity, now + .04);
+          rumbleGain.gain.exponentialRampToValueAtTime(.0001, now + 3.8);
+          rumble.connect(rumbleGain).connect(masterGain);
+          rumble.start(now); rumble.stop(now + 4);
+        }
+
+        async function toggleSound() {
+          initialiseSound();
+          if (!audioContext) return;
+          soundEnabled = !soundEnabled;
+          if (soundEnabled) await audioContext.resume();
+          const now = audioContext.currentTime;
+          masterGain.gain.cancelScheduledValues(now);
+          masterGain.gain.setTargetAtTime(soundEnabled ? .82 : .0001, now, soundEnabled ? .08 : .08);
+          soundToggle.setAttribute('aria-pressed', String(soundEnabled));
+          soundToggle.setAttribute('aria-label', soundEnabled ? 'Mute section thunder' : 'Enable section thunder');
+          soundToggle.textContent = soundEnabled ? 'Thunder · On' : 'Thunder · Off';
+        }
+
+        soundToggle.addEventListener('click', toggleSound);
+
+        const editableContent = window.portfolioContent || {};
+        function setEditableHeading(id, section, fallbackLabel) {
+          const heading = document.getElementById(id);
+          if (!heading) return;
+          const label = section && section.label ? section.label : fallbackLabel;
+          const url = section && section.url ? section.url.trim() : '';
+          heading.replaceChildren();
+          if (!url) {
+            heading.textContent = label;
+            return;
+          }
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = label;
+          heading.appendChild(link);
+        }
+
+        if (editableContent.name) {
+          const nameHeading = document.getElementById('name-heading');
+          nameHeading.textContent = editableContent.name;
+          document.title = editableContent.name;
+          const figureImage = document.querySelector('.figure');
+          if (figureImage) figureImage.alt = `Narrow luminous aura for ${editableContent.name}, with three bhasma lines and a fine gold yajñopavīta`;
+        }
+        setEditableHeading('cv-heading', editableContent.cv, 'CV');
+        setEditableHeading('github-heading', editableContent.github, 'GitHub');
+        setEditableHeading('author-heading', editableContent.author, 'Author page');
+
+        const authorArticles = document.getElementById('author-articles');
+        if (authorArticles && editableContent.author && Array.isArray(editableContent.author.articles)) {
+          authorArticles.replaceChildren();
+          editableContent.author.articles.forEach(article => {
+            if (!article || !article.title) return;
+            const listItem = document.createElement('li');
+            if (article.url) {
+              const link = document.createElement('a');
+              link.href = article.url;
+              link.target = '_blank';
+              link.rel = 'noopener noreferrer';
+              link.textContent = article.title;
+              listItem.appendChild(link);
+            } else listItem.textContent = article.title;
+            authorArticles.appendChild(listItem);
+          });
+          authorArticles.hidden = authorArticles.children.length === 0;
+        }
+
+        const projectList = document.getElementById('project-list');
+        const projectEmpty = document.getElementById('project-empty');
+        const projectConstellation = document.getElementById('project-constellation');
+        const projects = Array.isArray(window.portfolioProjects) ? window.portfolioProjects : [];
+        projects.forEach(project => {
+          if (!project || !project.title) return;
+          const item = document.createElement('li');
+          const content = project.url ? document.createElement('a') : document.createElement('span');
+          if (project.url) {
+            content.href = project.url;
+            content.target = '_blank';
+            content.rel = 'noopener noreferrer';
+          } else {
+            content.className = 'project-without-link';
+          }
+          const title = document.createElement('strong');
+          title.className = 'project-title';
+          title.textContent = project.title;
+          content.appendChild(title);
+          if (project.description) {
+            const description = document.createElement('span');
+            description.className = 'project-description';
+            description.textContent = project.description;
+            content.appendChild(description);
+          }
+          item.appendChild(content);
+          projectList.appendChild(item);
+        });
+        projectEmpty.hidden = projectList.children.length > 0;
+        if (projects.length) {
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('viewBox', '0 0 100 60');
+          const positions = projects.map((_, index) => ({
+            x: 10 + ((index * 37 + 13) % 80),
+            y: 9 + ((index * 23 + 17) % 42)
+          }));
+          positions.forEach((point, index) => {
+            if (index) {
+              const previous = positions[index - 1];
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('x1', previous.x); line.setAttribute('y1', previous.y);
+              line.setAttribute('x2', point.x); line.setAttribute('y2', point.y);
+              svg.appendChild(line);
+            }
+            const star = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            star.setAttribute('cx', point.x); star.setAttribute('cy', point.y);
+            star.setAttribute('r', index % 3 === 0 ? '1.1' : '.72');
+            svg.appendChild(star);
+          });
+          projectConstellation.appendChild(svg);
+        } else {
+          projectConstellation.hidden = true;
+        }
+
+        function setAtlas(index) {
+          chosen = (index + nakshatras.length) % nakshatras.length;
+          const entry = nakshatras[chosen];
+          document.getElementById('focus-sequence').textContent = `Nakshatra ${String(entry.number).padStart(2, '0')} / ${nakshatras.length}`;
+          document.getElementById('focus-name').textContent = entry.name;
+          document.getElementById('focus-meaning').textContent = entry.meaning;
+          labels.forEach((label, i) => {
+            label.classList.toggle('active', i === chosen);
+            label.classList.toggle('near', Math.abs(i - chosen) <= 2);
+          });
+        }
+
+        function seedRandom(seed) {
+          let value = seed >>> 0;
+          return () => {
+            value = (value * 1664525 + 1013904223) >>> 0;
+            return value / 4294967296;
+          };
+        }
+
+        function resizeSky() {
+          if (!ctx) return;
+          const ratio = Math.min(2, devicePixelRatio || 1);
+          width = canvas.clientWidth;
+          height = canvas.clientHeight;
+          canvas.width = Math.round(width * ratio);
+          canvas.height = Math.round(height * ratio);
+          ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+          const random = seedRandom(71621);
+          const count = width < 700 ? 270 : 560;
+          stars = Array.from({ length: count }, (_, i) => ({
+            x: random(), y: random(), depth: .4 + random() * 1.8,
+            radius: i % 19 === 0 ? 1.8 + random() * 1.2 : .35 + random() * .9,
+            phase: random() * Math.PI * 2,
+            warmth: random() > .79
+          }));
+          if (reducedMotion.matches) drawSky(performance.now());
+        }
+
+        function positiveMod(value, divisor) { return ((value % divisor) + divisor) % divisor; }
+
+        function updateSkyTime() {
+          const now = new Date();
+          const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+          }).formatToParts(now).filter(part => part.type !== 'literal').map(part => [part.type, Number(part.value)]));
+          const hour = parts.hour + parts.minute / 60 + parts.second / 3600;
+          document.getElementById('ist-clock').textContent = `${String(parts.hour).padStart(2,'0')}:${String(parts.minute).padStart(2,'0')}:${String(parts.second).padStart(2,'0')} IST`;
+
+          // USNO approximate Greenwich mean sidereal time, plus east longitude / 15.
+          const jd = now.getTime() / 86400000 + 2440587.5;
+          const jd0 = Math.floor(jd - .5) + .5;
+          const d0 = jd0 - 2451545;
+          const utHours = (jd - jd0) * 24;
+          const centuries = (jd - 2451545) / 36525;
+          siderealHours = positiveMod(6.697375 + .065709824279 * d0 + 1.0027379 * utHours + .0000258 * centuries * centuries + 82.77956 / 15, 24);
+          const sh = Math.floor(siderealHours);
+          const sm = Math.floor((siderealHours - sh) * 60);
+          const ss = Math.floor(((siderealHours - sh) * 60 - sm) * 60);
+          document.getElementById('sidereal-clock').textContent = `${String(sh).padStart(2,'0')}:${String(sm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+
+          // NOAA approximate solar altitude for the fixed observing location.
+          const yearStart = Date.UTC(parts.year, 0, 1);
+          const localDay = Date.UTC(parts.year, parts.month - 1, parts.day);
+          const dayOfYear = Math.round((localDay - yearStart) / 86400000) + 1;
+          const leap = new Date(Date.UTC(parts.year, 1, 29)).getUTCMonth() === 1;
+          const gamma = 2 * Math.PI / (leap ? 366 : 365) * (dayOfYear - 1 + (hour - 12) / 24);
+          const eqtime = 229.18 * (.000075 + .001868 * Math.cos(gamma) - .032077 * Math.sin(gamma) - .014615 * Math.cos(2 * gamma) - .040849 * Math.sin(2 * gamma));
+          const decl = .006918 - .399912 * Math.cos(gamma) + .070257 * Math.sin(gamma) - .006758 * Math.cos(2 * gamma) + .000907 * Math.sin(2 * gamma) - .002697 * Math.cos(3 * gamma) + .00148 * Math.sin(3 * gamma);
+          const trueSolarMinutes = hour * 60 + eqtime + 4 * 82.77956 - 60 * 5.5;
+          const hourAngle = (trueSolarMinutes / 4 - 180) * Math.PI / 180;
+          const latitude = 24.75345 * Math.PI / 180;
+          const sineAltitude = Math.sin(latitude) * Math.sin(decl) + Math.cos(latitude) * Math.cos(decl) * Math.cos(hourAngle);
+          solarAltitude = Math.asin(Math.max(-1, Math.min(1, sineAltitude))) * 180 / Math.PI;
+          document.getElementById('solar-altitude').textContent = `${solarAltitude >= 0 ? '+' : ''}${solarAltitude.toFixed(1)}° · ${solarAltitude >= 0 ? 'day' : 'night'}`;
+          const daylight = Math.max(0, Math.min(1, (solarAltitude + 12) / 24));
+          root.style.setProperty('--veil', (daylight * .17).toFixed(3));
+          root.style.setProperty('--horizon-glow', (daylight * .24).toFixed(3));
+          let palette;
+          if (solarAltitude > 12) {
+            palette = ['#0b1735','rgba(77,103,174,.48)','rgba(36,112,151,.22)'];
+          } else if (solarAltitude > -7) {
+            palette = ['#100f2d','rgba(112,67,135,.46)','rgba(191,104,64,.22)'];
+          } else if (parts.hour < 4) {
+            palette = ['#030719','rgba(39,48,111,.48)','rgba(15,55,104,.18)'];
+          } else {
+            palette = ['#080e24','rgba(57,71,148,.54)','rgba(20,91,136,.2)'];
+          }
+          root.style.setProperty('--sky-base', palette[0]);
+          root.style.setProperty('--sky-core', palette[1]);
+          root.style.setProperty('--sky-secondary', palette[2]);
+          render();
+        }
+
+        function drawImpact(event, life, strength, cx, cy) {
+          const spread = Math.min(width, height);
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.strokeStyle = `rgba(242,226,181,${strength * .72})`;
+          ctx.fillStyle = `rgba(224,233,255,${strength * .62})`;
+          if (event.index === 0) {
+            const radius = 34 + life * spread * .62;
+            ctx.lineWidth = 1 + strength * 2.6;
+            ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
+            for (let i = 0; i < 20; i++) {
+              const angle = i * Math.PI * 2 / 20;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(angle) * radius * .45, Math.sin(angle) * radius * .45);
+              ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+              ctx.stroke();
+            }
+          } else if (event.index === 1) {
+            ctx.rotate(-.12);
+            for (let i = 0; i < 3; i++) {
+              const size = 70 + (life + i * .16) * spread * .48;
+              ctx.globalAlpha = 1 - i * .22;
+              ctx.strokeRect(-size * .48, -size * .3, size * .96, size * .6);
+            }
+          } else if (event.index === 2) {
+            const radius = 55 + life * spread * .5;
+            const points = Array.from({ length: 8 }, (_, i) => ({
+              x: Math.cos(i * Math.PI * 2 / 8 + .2) * radius,
+              y: Math.sin(i * Math.PI * 2 / 8 + .2) * radius * .55
+            }));
+            points.forEach((point, i) => {
+              const next = points[(i + 1) % points.length];
+              ctx.beginPath(); ctx.moveTo(point.x, point.y); ctx.lineTo(next.x, next.y); ctx.stroke();
+              ctx.beginPath(); ctx.arc(point.x, point.y, 2 + strength * 2, 0, Math.PI * 2); ctx.fill();
+            });
+          } else if (event.index === 3) {
+            const reach = 80 + life * spread * .48;
+            ctx.globalAlpha = strength;
+            for (let i = -4; i <= 4; i++) {
+              const offset = i * reach / 4;
+              ctx.beginPath(); ctx.moveTo(-reach, offset); ctx.lineTo(reach, offset); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(offset, -reach); ctx.lineTo(offset, reach); ctx.stroke();
+            }
+          } else {
+            const reach = 90 + life * spread * .55;
+            for (let i = -3; i <= 3; i++) {
+              ctx.globalAlpha = 1 - Math.abs(i) * .1;
+              ctx.beginPath();
+              ctx.moveTo(-reach, i * 18);
+              ctx.quadraticCurveTo(0, i * 18 + Math.sin(life * Math.PI) * 16, reach, i * 18);
+              ctx.stroke();
+            }
+          }
+          ctx.restore();
+        }
+
+        function drawSky(now) {
+          if (!ctx) return;
+          const frameDelta = Math.max(0, (now - lastFrame) / 1000);
+          lastFrame = now;
+          if (!manualMode && !interactionPaused && !document.hidden && !reducedMotion.matches) autoElapsed += frameDelta;
+          if (!manualMode && !reducedMotion.matches) render(now);
+          ctx.clearRect(0, 0, width, height);
+          const t = (now - started) / 1000;
+          const moving = !reducedMotion.matches;
+          if (moving) {
+            pointerX += (pointerTargetX - pointerX) * .045;
+            pointerY += (pointerTargetY - pointerY) * .045;
+            const sway = Math.sin(t * .54);
+            const breathe = Math.sin(t * .72);
+            root.style.setProperty('--figure-drift', `${(sway * 9 + pointerY * 7).toFixed(1)}px`);
+            root.style.setProperty('--figure-shift-x', `${(Math.sin(t * .41) * 5 + pointerX * 9).toFixed(1)}px`);
+            root.style.setProperty('--figure-tilt', `${(Math.sin(t * .29) * .35 + pointerX * .7).toFixed(2)}deg`);
+            root.style.setProperty('--figure-scale', (1 + breathe * .009).toFixed(4));
+            root.style.setProperty('--star-drift', `${(-scrollProgress * 120 + Math.sin(t * .31) * 14 + pointerY * 8).toFixed(1)}px`);
+            root.style.setProperty('--saptarshi-drift', `${(scrollProgress * 52 + Math.sin(t * .37) * 7).toFixed(1)}px`);
+            root.style.setProperty('--ambient-x', `${(Math.sin(t * .66) * 4 + pointerX * 7).toFixed(1)}px`);
+            root.style.setProperty('--ambient-y', `${(Math.cos(t * .57) * 5 + pointerY * 5).toFixed(1)}px`);
+            labels.forEach((label, index) => {
+              const point = labelGeometry[index];
+              const angle = point.angle + siderealHours / 24 * Math.PI * 2 + scrollProgress * Math.PI * 1.2 + t * .0025;
+              label.style.left = `${50 + Math.cos(angle) * point.xRadius + pointerX * .12}%`;
+              label.style.top = `${50 + Math.sin(angle) * point.yRadius + pointerY * .12}%`;
+            });
+            orbits.forEach((orbit, index) => {
+              orbit.style.setProperty('--turn', `${siderealHours * 15 + scrollProgress * (index % 2 ? -230 : 320) + t * (index % 2 ? -.15 : .19) + pointerX * 2}deg`);
+              orbit.style.setProperty('--orbit-scale', `${1 + scrollProgress * .48 + breathe * .004}`);
+            });
+          }
+          const cx = width * .52;
+          const cy = height * .49;
+          const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(width, height) * .45);
+          halo.addColorStop(0, 'rgba(130,145,235,.16)');
+          halo.addColorStop(.45, 'rgba(58,82,169,.065)');
+          halo.addColorStop(1, 'rgba(58,82,169,0)');
+          ctx.fillStyle = halo;
+          ctx.fillRect(0, 0, width, height);
+          stars.forEach(star => {
+            const x = positiveMod(star.x * width + siderealHours / 24 * width * .12 + (moving ? scrollProgress * (star.depth - 1) * 135 + t * star.depth * 1.7 + pointerX * star.depth * 5 : 0), width);
+            const y = positiveMod(star.y * height + (moving ? scrollProgress * star.depth * 110 + t * star.depth * .75 + pointerY * star.depth * 5 : 0), height);
+            const skyVisibility = Math.max(.2, Math.min(1, (8 - solarAltitude) / 18));
+            const glow = (moving ? .68 + Math.sin(t * 1.3 + star.phase) * .24 : .8) * skyVisibility;
+            ctx.beginPath();
+            ctx.arc(x, y, star.radius, 0, Math.PI * 2);
+            ctx.fillStyle = star.warmth ? `rgba(240,214,165,${glow})` : `rgba(210,225,255,${glow})`;
+            ctx.fill();
+            if (star.radius > 2.2) {
+              ctx.strokeStyle = `rgba(215,227,255,${glow * .27})`;
+              ctx.lineWidth = .7;
+              ctx.beginPath();
+              ctx.moveTo(x - 8, y); ctx.lineTo(x + 8, y);
+              ctx.moveTo(x, y - 8); ctx.lineTo(x, y + 8);
+              ctx.stroke();
+            }
+          });
+          if (moving) {
+            impactEvents = impactEvents.filter(event => now - event.at < 900);
+            let strongestImpact = 0;
+            impactEvents.forEach(event => {
+              const life = Math.max(0, Math.min(1, (now - event.at) / 900));
+              const strength = Math.pow(1 - life, 2);
+              strongestImpact = Math.max(strongestImpact, strength);
+              drawImpact(event, life, strength, cx, cy);
+            });
+            root.style.setProperty('--ground-scale', (1 + strongestImpact * .28).toFixed(3));
+            root.style.setProperty('--ground-opacity', (.62 + strongestImpact * .38).toFixed(3));
+            root.style.setProperty('--impact-compress', (1 - strongestImpact * .045).toFixed(3));
+            root.style.setProperty('--aura-opacity', (.72 + strongestImpact * .18).toFixed(3));
+            root.style.setProperty('--aura-shadow', `${(26 + strongestImpact * 24).toFixed(1)}px`);
+            root.style.setProperty('--thread-opacity', (.2 + strongestImpact * .75).toFixed(3));
+          }
+          if (moving) requestAnimationFrame(drawSky);
+        }
+
+        function automaticProgress() {
+          const elapsed = autoElapsed - autoDelay;
+          if (elapsed <= 0) {
+            autoTimerIndex = 0; autoTimerProgress = 0;
+            root.style.setProperty('--cycle-veil', '0');
+            root.style.setProperty('--cycle-star', '0');
+            return 0;
+          }
+          const duration = autoInterval * phases.length;
+          const cycleNumber = Math.floor(elapsed / duration);
+          const cycle = elapsed % duration;
+          const index = Math.floor(cycle / autoInterval);
+          const step = Math.max(0, Math.min(1, (cycle - index * autoInterval) / autoTransition));
+          const ease = step * step * (3 - 2 * step);
+          autoTimerIndex = index;
+          autoTimerProgress = Math.max(0, Math.min(1, (cycle - index * autoInterval) / autoInterval));
+          const close = Math.max(0, Math.min(1, (cycle - (duration - .7)) / .7));
+          const open = cycleNumber > 0 ? Math.max(0, 1 - cycle / .7) : 0;
+          const portal = Math.max(close, open);
+          root.style.setProperty('--cycle-veil', portal.toFixed(3));
+          root.style.setProperty('--cycle-star', portal.toFixed(3));
+          root.style.setProperty('--cycle-star-scale', (1 + portal * 2.5).toFixed(3));
+          root.style.setProperty('--portal-radius', `${Math.max(0, (1 - portal) * 78).toFixed(1)}%`);
+          const from = index === 0 ? 0 : phases[index - 1] + autoSettleOffset;
+          return from + (phases[index] + autoSettleOffset - from) * ease;
+        }
+
+        function render(now = performance.now()) {
+          const length = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+          const progress = manualMode ? Math.max(0, Math.min(1, scrollY / length)) : automaticProgress();
+          if (manualMode) {
+            root.style.setProperty('--cycle-veil', '0');
+            root.style.setProperty('--cycle-star', '0');
+          }
+          if (!reducedMotion.matches && previousProgress !== null && progress - previousProgress < .3) {
+            phases.forEach((phase, index) => {
+              const threshold = phase - .02;
+              if (previousProgress < threshold && progress >= threshold) {
+                impactEvents.push({ at: now, index });
+              }
+            });
+          }
+          previousProgress = progress;
+          scrollProgress = progress;
+          root.style.setProperty('--progress', progress.toFixed(4));
+          const selectedNakshatra = Math.min(nakshatras.length - 1, Math.floor(progress * nakshatras.length));
+          if (selectedNakshatra !== chosen) setAtlas(selectedNakshatra);
+
+          if (!reducedMotion.matches) {
+            let activePhase = 0;
+            let closest = Infinity;
+            items.forEach((item, index) => {
+              const delta = progress - phases[index];
+              const distance = Math.abs(delta);
+              const direction = index % 2 ? -1 : 1;
+              const clamp = value => Math.max(0, Math.min(1, value));
+              const approach = clamp((delta + .115) / .095);
+              const strike = Math.pow(approach, 4);
+              const settle = clamp((delta + .018) / .038);
+              const settleEase = 1 + 3.2 * Math.pow(settle - 1, 3) + 2.2 * Math.pow(settle - 1, 2);
+              const wobble = Math.sin(settle * Math.PI * 2.6) * Math.pow(1 - settle, 2);
+              const leave = clamp((delta - .12) / .075);
+              const leaveEase = leave * leave * (3 - 2 * leave);
+              const x = direction * ((1 - strike) * innerWidth * 1.3 - strike * (1 - settleEase) * 84 + wobble * 25);
+              const y = (1 - strike) * innerHeight * .3 - strike * (1 - settleEase) * 31 + wobble * 11 - leaveEase * innerHeight * .14;
+              const tilt = direction * ((1 - strike) * -27 + strike * (1 - settleEase) * 19 + wobble * 8);
+              const scale = 2.4 - strike * .82 - settleEase * .58 + Math.abs(wobble) * .045 - leaveEase * .18;
+              const opacity = clamp((approach - .12) / .56) * (1 - leaveEase);
+              const impact = Math.max(0, 1 - Math.abs(delta + .018) / .037);
+              item.style.setProperty('--motion-x', `${x.toFixed(1)}px`);
+              item.style.setProperty('--motion-y', `${y.toFixed(1)}px`);
+              item.style.setProperty('--motion-tilt', `${tilt.toFixed(1)}deg`);
+              item.style.setProperty('--motion-scale', scale.toFixed(3));
+              item.style.setProperty('--motion-opacity', opacity.toFixed(3));
+              item.style.setProperty('--motion-blur', `${((1 - strike) * 7).toFixed(1)}px`);
+              item.style.setProperty('--impact-opacity', (impact * .98).toFixed(3));
+              item.style.setProperty('--impact-scale', (.15 + impact * .85).toFixed(3));
+              if (distance < closest) { closest = distance; activePhase = index; }
+            });
+            const phaseChanged = activePhase !== currentPhaseIndex;
+            currentPhaseIndex = activePhase;
+            if (phaseChanged) playThunder(activePhase, [.68, .78, .92, .74, .86][activePhase]);
+            document.body.dataset.phase = items[activePhase].id;
+            items.forEach((item, index) => item.classList.toggle('active', index === activePhase));
+            phaseRail.forEach((step, index) => {
+              step.classList.toggle('current', index === activePhase);
+              const timer = !manualMode && index === autoTimerIndex ? autoTimerProgress : 0;
+              step.style.setProperty('--step-progress', timer.toFixed(3));
+            });
+          } else {
+            ['--ambient-x','--ambient-y','--figure-drift','--figure-shift-x','--star-drift','--saptarshi-drift'].forEach(name => root.style.setProperty(name, '0px'));
+            root.style.setProperty('--figure-tilt', '0deg');
+            root.style.setProperty('--figure-scale', '1');
+            root.style.setProperty('--ground-scale', '1');
+            root.style.setProperty('--ground-opacity', '.7');
+            root.style.setProperty('--impact-compress', '1');
+            root.style.setProperty('--aura-opacity', '.72');
+            root.style.setProperty('--aura-shadow', '26px');
+            root.style.setProperty('--thread-opacity', '.2');
+            items.forEach(item => {
+              item.style.setProperty('--motion-y', '0px');
+              item.style.setProperty('--motion-x', '0px');
+              item.style.setProperty('--motion-tilt', '0deg');
+              item.style.setProperty('--motion-scale', '1');
+              item.style.setProperty('--motion-opacity', '1');
+              item.style.setProperty('--motion-blur', '0px');
+              item.style.setProperty('--impact-opacity', '0');
+            });
+          }
+          frameRequested = false;
+        }
+
+        function setInteractionPaused(paused) {
+          interactionPaused = paused && !manualMode;
+          document.body.classList.toggle('timer-paused', interactionPaused);
+        }
+
+        document.addEventListener('pointerover', event => {
+          if (event.target.closest('.item.active')) setInteractionPaused(true);
+        });
+        document.addEventListener('pointerout', event => {
+          if (event.target.closest('.item.active') && !event.relatedTarget?.closest?.('.item.active')) setInteractionPaused(false);
+        });
+        document.addEventListener('focusin', event => {
+          if (event.target.closest('.item.active')) setInteractionPaused(true);
+        });
+        document.addEventListener('focusout', event => {
+          if (!event.relatedTarget?.closest?.('.item.active')) setInteractionPaused(false);
+        });
+
+        addEventListener('scroll', () => {
+          if (manualIntent) { manualMode = true; setInteractionPaused(false); }
+          if (frameRequested) return;
+          frameRequested = true;
+          requestAnimationFrame(render);
+        }, { passive: true });
+        addEventListener('wheel', () => { manualIntent = true; }, { passive: true });
+        addEventListener('touchstart', () => { manualIntent = true; }, { passive: true });
+        addEventListener('pointerdown', event => {
+          if (event.pointerType === 'mouse' && event.clientX > innerWidth - 24) manualIntent = true;
+        }, { passive: true });
+        addEventListener('keydown', event => {
+          if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(event.key)) manualIntent = true;
+        });
+        addEventListener('pointermove', event => {
+          pointerTargetX = (event.clientX / innerWidth - .5) * 2;
+          pointerTargetY = (event.clientY / innerHeight - .5) * 2;
+        }, { passive: true });
+        addEventListener('pointerleave', () => { pointerTargetX = 0; pointerTargetY = 0; });
+        addEventListener('resize', () => { resizeSky(); render(); });
+        document.addEventListener('visibilitychange', () => {
+          lastFrame = performance.now();
+          if (!audioContext || !soundEnabled) return;
+          if (document.hidden) audioContext.suspend();
+          else audioContext.resume();
+        });
+        reducedMotion.addEventListener('change', () => { resizeSky(); render(); if (!reducedMotion.matches && ctx) requestAnimationFrame(drawSky); });
+        setAtlas(0);
+        updateSkyTime();
+        resizeSky();
+        if (ctx && !reducedMotion.matches) requestAnimationFrame(drawSky);
+        setInterval(updateSkyTime, 1000);
+      })();
+    </script>
+  </body>
+</html>
